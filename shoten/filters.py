@@ -359,6 +359,7 @@ def compute_deletions(mytokens, vectorizer, threshold):
     count_matrix = vectorizer.fit_transform(mytokens)
     cosine_similarities = cosine_similarity(count_matrix)  # linear_kernel, laplacian_kernel, rbf_kernel, sigmoid_kernel
     myscores = {
+        # np.median(cosine_similarities[:, rownum]) * (np.log(len(mytokens[rownum]))/len(mytokens[rownum]))
         mytokens[rownum]: 1 - np.mean(cosine_similarities[:, rownum])
         for rownum, _ in enumerate(mytokens)
     }
