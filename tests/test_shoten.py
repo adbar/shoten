@@ -47,8 +47,10 @@ def test_basics():
     # test frequency calculations
     assert gen_freqlist(str(Path(__file__).parent / 'testdir')) == dict()
     assert gen_freqlist(str(Path(__file__).parent / 'testdir'), langcodes=['en']) == dict()
-    mydict = dict()
-    mydict['Test'] = {'total': 20, 'mean': 10, 'stddev': 0, 'series_rel': [10, 10]}
+    mydict = {
+        'Test': {'total': 20, 'mean': 10, 'stddev': 0, 'series_rel': [10, 10]}
+    }
+
     store_freqlist(mydict, '/tmp/freqfile.tsv')
     mydict['Test2'] = {'total': 10, 'mean': 5, 'stddev': 4.082, 'series_rel': [10, 5, 0]}
     store_freqlist(mydict, '/tmp/freqfile.tsv')

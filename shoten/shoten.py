@@ -168,7 +168,7 @@ def gen_wordlist(mydir, langcodes=[], maxdiff=1000, authorregex=None, lemmafilte
     """Generate a list of occurrences (tokens or lemmatas) from an input directory
        containing XML-TEI files."""
     # init
-    myvocab = dict()
+    myvocab = {}
     # load language data
     lemmadata = load_data(*langcodes)
     # read files
@@ -258,7 +258,7 @@ def gen_freqlist(mydir, langcodes=[], maxdiff=1000, mindiff=0):
     myvocab = refine_vocab(myvocab, lemmadata)
     # determine bins
     bins = [i for i in range(oldestday, newestday-1, -1) if oldestday - i >= 7 and i % 7 == 0]
-    if len(bins) == 0:
+    if not bins:
         print('Not enough days to compute frequencies')
         return freqs
     timeseries = [0] * len(bins)
@@ -271,7 +271,7 @@ def gen_freqlist(mydir, langcodes=[], maxdiff=1000, mindiff=0):
     for item in deletions:
         del myvocab[item]
     # frequency computations
-    freqsum = sum([len(myvocab[l]['time_series']) for l in myvocab])
+    freqsum = sum(len(myvocab[l]['time_series']) for l in myvocab)
     for wordform in myvocab:
         # parts per million
         myvocab[wordform]['total'] = float('{0:.3f}'.format((len(myvocab[wordform]['time_series']) / freqsum)*1000000))

@@ -84,7 +84,7 @@ def recognized_by_simplemma(myvocab, lemmadata):
     for token in [t for t in myvocab if is_known(t, lemmadata)]:
         del myvocab[token]
     print_changes('known by simplemma', old_len, len(myvocab))
-    deletions = list()
+    deletions = []
     for word in myvocab:
         try:
             lemmatize(word, lemmadata, greedy=True, silent=False)
@@ -176,7 +176,7 @@ def freshness_filter(myvocab, percentage=10):
     old_len = len(myvocab)
     mysums = np.array([np.sum(myvocab[l]['time_series']) for l in myvocab])
     datethreshold = np.percentile(mysums, percentage)
-    deletions = list()
+    deletions = []
     for token in myvocab:
         # re-order
         myvocab[token]['time_series'] = -np.sort(-myvocab[token]['time_series'])
@@ -200,7 +200,7 @@ def freshness_filter(myvocab, percentage=10):
 
 def sources_freqfilter(myvocab, threshold=2, balanced=True):
     '''Filter words based on source diversity.'''
-    deletions = list()
+    deletions = []
     i, j = 0, 0
     for word in myvocab:
         if len(myvocab[word]['sources']) == 0:
@@ -229,7 +229,7 @@ def sources_freqfilter(myvocab, threshold=2, balanced=True):
 def sources_filter(myvocab, myset):
     '''Only keep the words for which the source contains at least
        one string listed in the input set.'''
-    deletions = list()
+    deletions = []
     for word in myvocab:
         deletion_flag = True
         if len(myvocab[word]['sources']) > 0:
@@ -244,7 +244,7 @@ def sources_filter(myvocab, myset):
                 # inner loop was broken, break the outer
                 break
         # record deletion
-        if deletion_flag is True:
+        if deletion_flag:
             deletions.append(word)
     old_len = len(myvocab)
     for item in deletions:
@@ -271,10 +271,7 @@ def wordlist_filter(myvocab, mylist, keep_words=False):
 
 def headings_filter(myvocab):
     '''Filter words based on their presence in headings.'''
-    deletions = list()
-    for word in myvocab:
-        if myvocab[word]['headings'] is False:
-            deletions.append(word)
+    deletions = [word for word in myvocab if myvocab[word]['headings'] is False]
     old_len = len(myvocab)
     for item in deletions:
         del myvocab[item]
@@ -283,7 +280,7 @@ def headings_filter(myvocab):
 
 
 def read_freqlist(filename):
-    freqlimits = dict()
+    freqlimits = {}
     with open(filename, 'r') as csvfile:
         tsvreader = csv.reader(csvfile, delimiter='\t')
         # skip headline
@@ -301,15 +298,17 @@ def longtermfilter(myvocab, filename, mustexist=False, startday=1):
     oldestday = startday + 6
     allfreqs = 0
     for word in myvocab:
-        occurrences = 0
         mydays = Counter(myvocab[word]['time_series'])
-        for day in range(oldestday, startday-1, -1):
-            if day in mydays:
-                occurrences += mydays[day]
+        occurrences = sum(
+            mydays[day]
+            for day in range(oldestday, startday - 1, -1)
+            if day in mydays
+        )
+
         myvocab[word]['absfreq'] = occurrences
         allfreqs += occurrences
     # relative frequency
-    deletions = list()
+    deletions = []
     intersection = [w for w in myvocab if w in freqlimits]
     for word in intersection:
         relfreq = (myvocab[word]['absfreq'] / allfreqs)*1000000
@@ -319,7 +318,7 @@ def longtermfilter(myvocab, filename, mustexist=False, startday=1):
             deletions.append(word)
     if mustexist is True:
         exclusion = [w for w in myvocab if w not in freqlimits]
-        deletions = deletions + exclusion
+        deletions += exclusion
     old_len = len(myvocab)
     for item in deletions:
         del myvocab[item]
@@ -359,10 +358,11 @@ def compute_deletions(mytokens, vectorizer, threshold):
     '''Compute deletion list based on n-gram dissimilarities.'''
     count_matrix = vectorizer.fit_transform(mytokens)
     cosine_similarities = cosine_similarity(count_matrix)  # linear_kernel, laplacian_kernel, rbf_kernel, sigmoid_kernel
-    myscores = dict()
-    for rownum, _ in enumerate(mytokens):
-        #myscores[mytokens[rownum]] = np.median(cosine_similarities[:, rownum]) * (np.log(len(mytokens[rownum]))/len(mytokens[rownum]))
-        myscores[mytokens[rownum]] = 1 - np.mean(cosine_similarities[:, rownum])
+    myscores = {
+        mytokens[rownum]: 1 - np.mean(cosine_similarities[:, rownum])
+        for rownum, _ in enumerate(mytokens)
+    }
+
     # print info
     #if verbose is True:
     #    resultsize = 20 # :resultsize*2

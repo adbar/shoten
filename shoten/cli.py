@@ -39,7 +39,7 @@ def process_args(args):
     try:
         myvocab = combined_filters(myvocab, args.filter_level)
     except IndexError:
-        myvocab = dict()
+        myvocab = {}
     for wordform in sorted(myvocab):
         if args.verbose is True:
             print(wordform, myvocab[wordform])
