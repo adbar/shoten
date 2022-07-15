@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 def get_version(package):
     "Return package version as listed in `__version__` in `init.py`"
     package_metadata = Path(package, '__init__.py').read_text()
-    return re.search('__version__ = [\'"]([^\'"]+)[\'"]', package_metadata).group(1)
+    return re.search('__version__ = [\'"]([^\'"]+)[\'"]', package_metadata)[1]
 
 
 readme = Path('README.rst').read_text()

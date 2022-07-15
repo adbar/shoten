@@ -1,6 +1,7 @@
 """Module listing data classes, types and constants used by shoten."""
 
 
+
 #from __future__ import annotations
 
 from array import array
@@ -8,7 +9,7 @@ from collections import defaultdict  # Counter
 from datetime import datetime
 
 
-TODAY = datetime.today()
+TODAY = datetime.now()
 
 
 ARRAY_TYPE = 'H'
