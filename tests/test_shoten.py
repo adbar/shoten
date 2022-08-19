@@ -297,7 +297,7 @@ def test_filters():
 
     # n-grams
     # too large
-    myvocab = dict.fromkeys(['abc_' + str(x) for x in range(30000)])
+    myvocab = dict.fromkeys([f'abc_{str(x)}' for x in range(30000)])
     newvocab = ngram_filter(myvocab, threshold=50, verbose=True)
     assert newvocab == myvocab
     # plausible test
