@@ -185,7 +185,7 @@ def frequency_filter(vocab: Dict[str, Entry], max_perc: float=50, min_perc: floa
     return vocab
 
 
-def hyphenated_filter(vocab: Dict[str, Entry], perc: float=50, verbose: bool=False) -> Dict[str, Entry]:  # threshold in percent
+def hyphenated_filter(vocab: Dict[str, Entry], perc: float=50, verbose: bool=False) -> Dict[str, Entry]:    # threshold in percent
     '''Reduce dict size by deleting hyphenated tokens when the parts are frequent.'''
     deletions, old_len = [], len(vocab)
     myfreqs = np.array(sum_entries(vocab))
@@ -196,7 +196,7 @@ def hyphenated_filter(vocab: Dict[str, Entry], perc: float=50, verbose: bool=Fal
         if firstpart in vocab and sum_entry(vocab[firstpart]) > threshold or \
            secondpart in vocab and sum_entry(vocab[secondpart]) > threshold:
             deletions.append(word)
-    if verbose is True:
+    if verbose:
         print(sorted(deletions))
     for item in deletions:
         del vocab[item]
@@ -255,12 +255,10 @@ def freshness_filter(vocab: Dict[str, Entry], percentage: float=10) -> Dict[str,
         thresh = len(series)*(percentage/100)
         freshnessindex = sum(series[-ceil(thresh):])
         oldnessindex = sum(series[:ceil(thresh)])
-        if oldnessindex < datethreshold:
-            #if oldnessindex < np.percentile(series, percentage):
-            #    continue
-            if freshnessindex < np.percentile(series, percentage):
-                deletions.append(token)
-            # print(vocab[token], freshnessindex, oldnessindex, token)
+        if oldnessindex < datethreshold and freshnessindex < np.percentile(
+            series, percentage
+        ):
+            deletions.append(token)
     for item in deletions:
         del vocab[item]
     print_changes('freshness', old_len, len(vocab))
@@ -326,10 +324,12 @@ def sources_filter(vocab: Dict[str, Entry], myset: Set[str]) -> Dict[str, Entry]
 def wordlist_filter(vocab: Dict[str, Entry], mylist: List[str], keep_words: bool=False) -> Dict[str, Entry]:
     '''Keep or discard words present in the input list.'''
     intersection = set(vocab) & set(mylist)
-    if keep_words is False:
-        deletions = list(intersection)
-    else:
-        deletions = [w for w in vocab if w not in intersection]
+    deletions = (
+        [w for w in vocab if w not in intersection]
+        if keep_words
+        else list(intersection)
+    )
+
     old_len = len(vocab)
     for word in deletions:
         del vocab[word]

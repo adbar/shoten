@@ -36,8 +36,7 @@ def find_files(dirname: str, maxdiff: int) -> Iterator[str]:
     for thepath, _, files in walk(dirname):
         # check for dates in directory names
         if '-' in thepath:
-            match = DATESEARCH.search(thepath)
-            if match:
+            if match := DATESEARCH.search(thepath):
                 thisdiff = calc_timediff(match[0])
                 if thisdiff is not None and thisdiff > maxdiff:
                     continue
@@ -181,7 +180,7 @@ def read_file(filepath: str, *, maxdiff: int=1000, mindiff: int=0, authorregex: 
             source = mytree.findtext('.//tei:publisher', namespaces=NSPACE)
     # headings
     headwords = set()
-    if details is True:
+    if details:
         bow = [' '.join(h.itertext()) for h in mytree.xpath('.//tei:fw|.//tei:head', namespaces=NSPACE)]
         headwords = {t for t in simple_tokenizer(' '.join(bow)) if is_relevant_input(t)}
     # process
